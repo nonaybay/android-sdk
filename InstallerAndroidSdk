@@ -1,0 +1,75 @@
+#!/bin/bash
+
+
+
+
+
+
+
+# Variables
+PATH_NONAYBAY=~/.nonaybay
+PATH_ANDROID=$PATH_NONAYBAY/android
+PATH_SDK=$PATH_ANDROID/android-sdk
+PATH_TEMPFILES=$PATH_NONAYBAY/temporary_files
+PATH_CMDLINETOOLS=$PATH_SDK/cmdline-tools
+PATH_OPENDJDK=/usr/java/openjdk
+
+FILENAME_openjdk='openjdk.tar.gz'
+FILENAME_cmdlinetools='cmdlinetools.zip'
+FILENAME_platformtools='platformtools.zip'
+
+LINK_openjdk='https://download.java.net/java/GA/jdk15.0.1/51f4f36ad4ef43e39d0dfdbaf6549e32/9/GPL/openjdk-15.0.1_linux-x64_bin.tar.gz'
+LINK_cmdlinetools='https://dl.google.com/android/repository/commandlinetools-linux-6858069_latest.zip'
+LINK_platformtools='https://dl.google.com/android/repository/platform-tools-latest-linux.zip'
+
+clear
+
+sleep 2
+
+echo " "
+echo "Starting... "
+echo " "
+
+sleep 2
+
+clear
+
+sleep 1
+
+rm -rfv $PATH_ANDROID
+
+mkdir -p $PATH_NONAYBAY
+mkdir -p $PATH_TEMPFILES
+mkdir -p $PATH_ANDROID
+mkdir -p $PATH_SDK
+mkdir -p $PATH_CMDLINETOOLS
+
+wget -c -O $PATH_TEMPFILES/$FILENAME_openjdk $LINK_openjdk
+wget -c -O $PATH_TEMPFILES/$FILENAME_cmdlinetools $LINK_cmdlinetools
+wget -c -O $PATH_TEMPFILES/$FILENAME_platformtools $LINK_platformtools
+
+cp $PATH_TEMPFILES/$FILENAME_openjdk $PATH_OPENDJDK
+
+cd $PATH_OPENDJDK
+
+tar -xzvf $FILENAME_openjdk
+
+echo "JAVA_HOME=/usr/java/openjdk/jdk-15.0.1" >> /etc/profile
+echo "PATH=$PATH:$HOME/bin:$JAVA_HOME/bin" >> /etc/profile
+echo "export JAVA_HOME" >> /etc/profile
+echo "export PATH" >> /etc/profile
+
+sudo update-alternatives --install "/usr/bin/java" "java" "/usr/java/openjdk/jdk-15.0.1/bin/java" 1
+sudo update-alternatives --install "/usr/bin/javac" "javac" "/usr/java/openjdk/jdk-15.0.1/bin/javac" 1
+sudo update-alternatives --config java
+sudo update-alternatives --config javac
+
+unzip $PATH_TEMPFILES/$FILENAME_cmdlinetools -d $PATH_CMDLINETOOLS
+unzip $PATH_TEMPFILES/$FILENAME_platformtools -d $PATH_SDK
+
+mv $PATH_CMDLINETOOLS/cmdline-tools $PATH_CMDLINETOOLS/tools
+
+echo "export ANDROID_HOME=~/.nonaybay/android/android-sdk/" >> ~/.bashrc
+echo "export PATH=~/.nonaybay/android/android-sdk/platform-tools:~/.nonaybay/android/android-sdk/cmdline-tools/tools:~/.nonaybay/android/android-sdk/cmdline-tools/tools/bin:${PATH}" >> ~/.bashrc
+
+source ~/.bashrc
